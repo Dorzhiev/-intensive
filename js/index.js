@@ -1,8 +1,13 @@
 const disabledScroll = () => {
 
-    const widthScroll = window.innerWidth - document.body.offsetWidth //ширина экрана - шинрина body 
+    const widthScroll = window.innerWidth - document.body.offsetWidth   //ширина экрана - шинрина body 
 
-    document.body.scrollPosition = window.scrollY//сохраним положение где мы находимся 
+    document.body.scrollPosition = window.scrollY   //сохраним положение где мы находимся 
+
+    document.documentElement.style.cssText = `  // убираем баг, для больших экранов
+        positive: relative;
+        height: 100vh;
+    `
 
     document.body.style.cssText =`
         overflow: hidden;
@@ -19,13 +24,10 @@ const enabledScroll = () => {
     window.scroll({top: document.body.scrollPosition});//вытаскиваем функцию из браузера и прописываем скролл сверху 
 };
 
-{
+{ // Модальное окно
     const presentOrderBtn = document.querySelector('.present__order-btn');
     const pageOverlayModal = document.querySelector('.page__overlay_modal');
     const modalClose = document.querySelector('.modal__close');
-
-    // pageOverlayModal.classList.add('page__overlay_modal_open');
-    // pageOverlayModal.classList.remove('page__overlay_modal_open');
 
     const handlerModal = (openBtn, modal, openSelector, closeTrigger, sk = 'medium') => {
 
@@ -36,6 +38,7 @@ const enabledScroll = () => {
     medium: 8,
     fast: 1
     };
+
     const openModal = () => {
         disabledScroll();
         modal.style.opacity = opacity;
@@ -79,7 +82,7 @@ const enabledScroll = () => {
     );
 }
 
-{
+{ // Бургер меню
     const headerContactsBurger = document.querySelector('.header__contacts-burger');
     const headerContacts = document.querySelector('.header__contacts');
 
@@ -95,4 +98,44 @@ const enabledScroll = () => {
         });
     };
     handlerBurger(headerContactsBurger , headerContacts,'header__contacts_open');
+}
+
+{ // Галерея
+
+    const portfolioList = document.querySelector('.portfolio__list');
+    const pageOverlay = document.createElement('div');
+    pageOverlay.classList.add('page__overlay');
+
+    portfolioList.addEventListener('click', (event) => {
+        disabledScroll();  
+        const card = event.target.closest('.card');
+        if (card) {
+
+            document.body.append(pageOverlay);
+            const title = card.querySelector('.card__client');
+
+            const picture = document.createElement('picture');
+
+            picture.style.cssText = `
+                position: absolute;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90%;
+                max-width: 1440px
+            `
+            picture.innerHTML = `
+                <sourse srcset="${card.dataset.fullImage}.avif" type="image/avif">
+                <sourse srcset="${card.dataset.fullImage}.webp" type="image/webp">
+                <img src="${card.dataset.fullImage}.jpg" alt="${title.textContent}">
+            `;
+             pageOverlay.append(picture);
+        }
+    }); 
+    pageOverlay.addEventListener('click', () => {
+       enabledScroll();
+       pageOverlay.remove();
+       pageOverlay.textContent = ''; // очищаем pageOverlay
+    });
+
 }
